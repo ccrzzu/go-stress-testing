@@ -29,25 +29,25 @@ func (a *array) Set(s string) error {
 }
 
 var (
-	concurrency uint64 = 1       // 并发数
-	totalNumber uint64 = 1       // 请求数(单个并发/协程)
-	debugStr           = "false" // 是否是debug
-	requestURL         = ""      // 压测的url 目前支持，http/https ws/wss
-	path               = ""      // curl文件路径 http接口压测，自定义参数设置
-	verify             = ""      // verify 验证方法 在server/verify中 http 支持:statusCode、json webSocket支持:json
-	headers     array            // 自定义头信息传递给服务器
-	body               = ""      // HTTP POST方式传送数据
-	maxCon             = 1       // 单个连接最大请求数
-	code               = 200     // 成功状态码
-	http2              = false   // 是否开http2.0
-	keepalive          = false   // 是否开启长连接
-	cpuNumber          = 1       // CUP 核数，默认为一核，一般场景下单核已经够用了
-	timeout     int64  = 0       // 超时时间，默认不设置
+	concurrency      uint64 = 1       // 并发数
+	perGoTotalNumber uint64 = 1       // 请求数(单个并发/协程)
+	debugStr                = "false" // 是否是debug
+	requestURL              = ""      // 压测的url 目前支持，http/https ws/wss
+	path                    = ""      // curl文件路径 http接口压测，自定义参数设置
+	verify                  = ""      // verify 验证方法 在server/verify中 http 支持:statusCode、json webSocket支持:json
+	headers          array            // 自定义头信息传递给服务器
+	body                    = ""      // HTTP POST方式传送数据
+	maxCon                  = 1       // 单个连接最大请求数
+	code                    = 200     // 成功状态码
+	http2                   = false   // 是否开http2.0
+	keepalive               = false   // 是否开启长连接
+	cpuNumber               = 1       // CUP 核数，默认为一核，一般场景下单核已经够用了
+	timeout          int64  = 0       // 超时时间，默认不设置
 )
 
 func init() {
 	flag.Uint64Var(&concurrency, "c", concurrency, "并发数")
-	flag.Uint64Var(&totalNumber, "n", totalNumber, "请求数(单个并发/协程)")
+	flag.Uint64Var(&perGoTotalNumber, "n", perGoTotalNumber, "请求数(单个并发/协程)")
 	flag.StringVar(&debugStr, "d", debugStr, "调试模式")
 	flag.StringVar(&requestURL, "u", requestURL, "压测地址")
 	flag.StringVar(&path, "p", path, "curl文件路径")
@@ -70,10 +70,10 @@ func init() {
 //go:generate go build main.go
 func main() {
 	runtime.GOMAXPROCS(cpuNumber)
-	if concurrency == 0 || totalNumber == 0 || (requestURL == "" && path == "") {
+	if concurrency == 0 || perGoTotalNumber == 0 || (requestURL == "" && path == "") {
 		fmt.Printf("示例: go run main.go -c 1 -n 1 -u https://www.baidu.com/ \n")
 		fmt.Printf("压测地址或curl路径必填 \n")
-		fmt.Printf("当前请求参数: -c %d -n %d -d %v -u %s \n", concurrency, totalNumber, debugStr, requestURL)
+		fmt.Printf("当前请求参数: -c %d -n %d -d %v -u %s \n", concurrency, perGoTotalNumber, debugStr, requestURL)
 		flag.Usage()
 		return
 	}
@@ -83,7 +83,7 @@ func main() {
 		fmt.Printf("参数不合法 %v \n", err)
 		return
 	}
-	fmt.Printf("\n 开始启动  并发数:%d 请求数:%d 请求参数: \n", concurrency, totalNumber)
+	fmt.Printf("\n 开始启动  并发数:%d 每个并发请求数:%d 请求参数: \n", concurrency, perGoTotalNumber)
 	request.Print()
 
 	// 开始处理
@@ -97,6 +97,6 @@ func main() {
 			fmt.Printf(" deadline %s", deadline)
 		}
 	}
-	server.Dispose(ctx, concurrency, totalNumber, request)
+	server.Dispose(ctx, concurrency, perGoTotalNumber, request)
 	return
 }

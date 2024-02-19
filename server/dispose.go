@@ -30,21 +30,21 @@ func init() {
 }
 
 // Dispose 处理函数
-func Dispose(ctx context.Context, concurrency, totalNumber uint64, request *model.Request) {
+func Dispose(ctx context.Context, concurrency, perGoTotalNumber uint64, request *model.Request) {
 	// 设置接收数据缓存
-	ch := make(chan *model.RequestResults, 1000)
+	ch := make(chan *model.RequestResults, 2000)
 	var (
 		wg          sync.WaitGroup // 发送数据完成
 		wgReceiving sync.WaitGroup // 数据处理完成
 	)
 	wgReceiving.Add(1)
-	go statistics.ReceivingResults(concurrency, ch, &wgReceiving)
+	go statistics.ReceivingResults(concurrency, perGoTotalNumber, ch, &wgReceiving)
 
 	for i := uint64(0); i < concurrency; i++ {
 		wg.Add(1)
 		switch request.Form {
 		case model.FormTypeHTTP:
-			go golink.HTTP(ctx, i, ch, totalNumber, &wg, request)
+			go golink.HTTP(ctx, i, ch, perGoTotalNumber, &wg, request)
 		case model.FormTypeWebSocket:
 			switch connectionMode {
 			case 1:
@@ -56,7 +56,7 @@ func Dispose(ctx context.Context, concurrency, totalNumber uint64, request *mode
 					fmt.Println("连接失败:", i, err)
 					continue
 				}
-				go golink.WebSocket(ctx, i, ch, totalNumber, &wg, request, ws)
+				go golink.WebSocket(ctx, i, ch, perGoTotalNumber, &wg, request, ws)
 			case 2:
 				// 并发建立长链接
 				go func(i uint64) {
@@ -68,7 +68,7 @@ func Dispose(ctx context.Context, concurrency, totalNumber uint64, request *mode
 						fmt.Println("连接失败:", i, err)
 						return
 					}
-					golink.WebSocket(ctx, i, ch, totalNumber, &wg, request, ws)
+					golink.WebSocket(ctx, i, ch, perGoTotalNumber, &wg, request, ws)
 				}(i)
 				// 注意:时间间隔太短会出现连接失败的报错 默认连接时长:20毫秒(公网连接)
 				time.Sleep(5 * time.Millisecond)
@@ -84,10 +84,10 @@ func Dispose(ctx context.Context, concurrency, totalNumber uint64, request *mode
 				fmt.Println("连接失败:", i, err)
 				continue
 			}
-			go golink.Grpc(ctx, i, ch, totalNumber, &wg, request, ws)
+			go golink.Grpc(ctx, i, ch, perGoTotalNumber, &wg, request, ws)
 		case model.FormTypeRadius:
 			// Radius use udp, does not a connection
-			go golink.Radius(ctx, i, ch, totalNumber, &wg, request)
+			go golink.Radius(ctx, i, ch, perGoTotalNumber, &wg, request)
 
 		default:
 			// 类型不支持
