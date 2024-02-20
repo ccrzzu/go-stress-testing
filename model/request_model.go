@@ -80,12 +80,12 @@ type Request struct {
 	Headers   map[string]string // Headers
 	Body      string            // body
 	Verify    string            // 验证的方法
+	Code      int               // 验证的状态码
 	Timeout   time.Duration     // 请求超时时间
 	Debug     bool              // 是否开启Debug模式
 	MaxCon    int               // 每个连接的请求数
 	HTTP2     bool              // 是否使用http2.0
 	Keepalive bool              // 是否开启长连接
-	Code      int               // 验证的状态码
 }
 
 // GetBody 获取请求数据
@@ -242,10 +242,10 @@ func (r *Request) Print() {
 	result := fmt.Sprintf("request:\n form:%s \n url:%s \n method:%s \n headers:%v \n", r.Form, r.URL, r.Method,
 		r.Headers)
 	result = fmt.Sprintf("%s data:%v \n", result, r.Body)
-	result = fmt.Sprintf("%s verify:%s \n timeout:%s \n debug:%v \n", result, r.Verify, r.Timeout, r.Debug)
+	result = fmt.Sprintf("%s verify:%s \n code:%d \n timeout:%s \n debug:%v \n", result, r.Verify, r.Code, r.Timeout, r.Debug)
 	result = fmt.Sprintf("%s http2.0：%v \n keepalive：%v \n maxCon:%v ", result, r.HTTP2, r.Keepalive, r.MaxCon)
 	fmt.Println(result)
-	return
+	//return
 }
 
 // GetDebug 获取 debug 参数
@@ -269,7 +269,7 @@ func (r *Request) IsParameterLegal() (err error) {
 // RequestResults 请求结果
 type RequestResults struct {
 	ID            string // 消息ID
-	ChanID        uint64 // 消息ID
+	ChanID        uint64 // 协程ID
 	Time          uint64 // 请求时间 纳秒
 	IsSucceed     bool   // 是否请求成功
 	ErrCode       int    // 错误码

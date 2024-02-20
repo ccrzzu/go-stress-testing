@@ -60,10 +60,10 @@ end:
 
 	if keepAlive {
 		// 保持连接
-		chWaitFor := make(chan int, 0)
+		chWaitFor := make(chan int)
 		<-chWaitFor
 	}
-	return
+	//return
 }
 
 // webSocketRequest 请求

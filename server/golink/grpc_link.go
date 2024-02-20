@@ -25,7 +25,7 @@ func Grpc(_ context.Context, chanID uint64, ch chan<- *model.RequestResults, tot
 	for i := uint64(0); i < totalNumber; i++ {
 		grpcRequest(chanID, ch, i, request, ws)
 	}
-	return
+	//return
 }
 
 // grpcRequest 请求

@@ -5,12 +5,10 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"runtime"
-	"strings"
-	"time"
-
 	"github.com/link1st/go-stress-testing/model"
 	"github.com/link1st/go-stress-testing/server"
+	"strings"
+	"time"
 )
 
 // array 自定义数组参数
@@ -69,7 +67,9 @@ func init() {
 //
 //go:generate go build main.go
 func main() {
-	runtime.GOMAXPROCS(cpuNumber)
+
+	//runtime.GOMAXPROCS(cpuNumber)
+
 	if concurrency == 0 || perGoTotalNumber == 0 || (requestURL == "" && path == "") {
 		fmt.Printf("示例: go run main.go -c 1 -n 1 -u https://www.baidu.com/ \n")
 		fmt.Printf("压测地址或curl路径必填 \n")
@@ -83,7 +83,7 @@ func main() {
 		fmt.Printf("参数不合法 %v \n", err)
 		return
 	}
-	fmt.Printf("\n 开始启动  并发数:%d 每个并发请求数:%d 请求参数: \n", concurrency, perGoTotalNumber)
+	fmt.Printf("\n 开始启动  并发数:%d 每个并发请求数:%d \n请求参数: \n", concurrency, perGoTotalNumber)
 	request.Print()
 
 	// 开始处理

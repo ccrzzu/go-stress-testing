@@ -22,7 +22,7 @@ func Radius(_ context.Context, chanID uint64, ch chan<- *model.RequestResults, t
 	for i := uint64(0); i < totalNumber; i++ {
 		authRequest(chanID, ch, i, request)
 	}
-	return
+	//return
 }
 
 // grpcRequest 请求

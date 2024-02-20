@@ -3,7 +3,9 @@ package client
 
 import (
 	"crypto/tls"
-	"log"
+	"fmt"
+	 "log"
+	"math/rand"
 	"net/http"
 	"os"
 	"time"
@@ -26,6 +28,18 @@ var logErr = log.New(os.Stderr, "", 0)
 func HTTPRequest(chanID uint64, request *model.Request) (resp *http.Response, requestTime uint64, err error) {
 	method := request.Method
 	url := request.URL
+
+	urlParam := "?appId=%s&userId=%d&roomId=%d&liveMode=2&doremeVersion=3.3.6&sslMode=1&brand=TCL&transactionId=169691953524700&deviceId=N_6b317d8a97308460ss&osName=android&deviceType=T602DL&osVersion=2.3.4"
+	arr := [3]string{"Lizhi_Heiye_20210727", "Lizhi_PP_20191010", "Lizhi_Xiaoximi_20220407"}
+	randomIndex := rand.Intn(len(arr))
+	appId := arr[randomIndex]
+	userId := rand.New(rand.NewSource(time.Now().UnixNano())).Uint32()
+	roomId := rand.New(rand.NewSource(time.Now().UnixNano())).Uint32()
+	urlParam = fmt.Sprintf(urlParam, appId, userId, roomId)
+	url = url + urlParam
+	
+	//fmt.Println("url:", url)
+
 	body := request.GetBody()
 	timeout := request.Timeout
 	headers := request.Headers
@@ -57,7 +71,6 @@ func HTTPRequest(chanID uint64, request *model.Request) (resp *http.Response, re
 		requestTime = uint64(helper.DiffNano(startTime))
 		if err != nil {
 			logErr.Println("请求失败:", err)
-
 			return
 		}
 		return
@@ -88,6 +101,11 @@ func HTTPRequest(chanID uint64, request *model.Request) (resp *http.Response, re
 	startTime := time.Now()
 	resp, err = client.Do(req)
 	requestTime = uint64(helper.DiffNano(startTime))
+
+	// TODO fortest
+	// cuiresp, _ := io.ReadAll(resp.Body)
+	// fmt.Println("cui:", string(cuiresp))
+
 	if err != nil {
 		logErr.Println("请求失败:", err)
 

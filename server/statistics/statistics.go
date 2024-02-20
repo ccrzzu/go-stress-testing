@@ -88,7 +88,7 @@ func ReceivingResults(concurrent, perGoTotalNumber uint64, ch <-chan *model.Requ
 		} else {
 			errCode.Store(data.ErrCode, 1)
 		}
-		receivedBytes += data.ReceivedBytes
+		//receivedBytes += data.ReceivedBytes
 		if _, ok := chanIDs[data.ChanID]; !ok {
 			chanIDs[data.ChanID] = true
 			chanIDLen = len(chanIDs)
@@ -107,9 +107,10 @@ func ReceivingResults(concurrent, perGoTotalNumber uint64, ch <-chan *model.Requ
 	fmt.Println("*************************  结果 start  ****************************")
 	fmt.Println("处理协程数量:", concurrent)
 	// fmt.Println("处理协程数量:", concurrent, "程序处理总时长:", fmt.Sprintf("%.3f", float64(processingTime/concurrent)/1e9), "秒")
-	fmt.Println("请求总数(并发数*请求数 -c * -n):", concurrent*perGoTotalNumber,
-		"\n总请求时间:", fmt.Sprintf("%.3f", float64(requestTime)/1e9), "秒",
-		"\nsuccessNum:", successNum, "failureNum:", failureNum, "totalNum:", successNum+failureNum)
+	fmt.Println("总请求时间:", fmt.Sprintf("%.3f", float64(requestTime)/1e9), "秒",
+		"\n请求总数(并发数*请求数 -c * -n):", concurrent*perGoTotalNumber,
+		"\n实际totalNum:", successNum+failureNum,
+		"\n实际successNum:", successNum, "failureNum:", failureNum)
 	printTop(requestTimeList)
 	fmt.Println("*************************  结果 end   ****************************")
 	fmt.Printf("\n\n")
@@ -125,7 +126,7 @@ func printTop(requestTimeList []uint64) {
 	// sort.Sort(requestTimeList)
 	slices.Sort(requestTimeList)
 	fmt.Println("top100:", fmt.Sprintf("%.2f", float64(requestTimeList[len(requestTimeList)-1])/1e6))
-	fmt.Println("top0:",requestTimeList[0], fmt.Sprintf("%.2f", float64(requestTimeList[0])/1e6))
+	fmt.Println("top0:", fmt.Sprintf("%.2f", float64(requestTimeList[0])/1e6))
 	fmt.Println("top50:", fmt.Sprintf("%.2f", float64(requestTimeList[int(float64(len(requestTimeList))*0.50)])/1e6))
 	fmt.Println("top90:", fmt.Sprintf("%.2f", float64(requestTimeList[int(float64(len(requestTimeList))*0.90)])/1e6))
 	fmt.Println("top95:", fmt.Sprintf("%.2f", float64(requestTimeList[int(float64(len(requestTimeList))*0.95)])/1e6))
@@ -160,8 +161,7 @@ func calculateData(concurrent, processingTime, requestTime, maxTime, minTime, su
 	// 总耗时 纳秒=>毫秒
 	requestTimeFloat = float64(requestTime) / 1e6
 	// 打印
-	table(successNum, failureNum, errCode, qps, averageTime, maxTimeFloat, minTimeFloat, requestTimeFloat, chanIDLen,
-		receivedBytes)
+	table(successNum, failureNum, errCode, qps, averageTime, maxTimeFloat, minTimeFloat, requestTimeFloat, chanIDLen, receivedBytes)
 }
 
 // header 打印表头信息
@@ -177,26 +177,26 @@ func header() {
 // table 打印表格
 func table(successNum, failureNum uint64, errCode *sync.Map,
 	qps, averageTime, maxTimeFloat, minTimeFloat, requestTimeFloat float64, chanIDLen int, receivedBytes int64) {
-	var (
-		speed int64
-	)
-	if requestTimeFloat > 0 {
-		speed = int64(float64(receivedBytes) / requestTimeFloat)
-	} else {
-		speed = 0
-	}
+	// var (
+	// 	speed int64
+	// )
+	// if requestTimeFloat > 0 {
+	// 	speed = int64(float64(receivedBytes) / requestTimeFloat)
+	// } else {
+	// 	speed = 0
+	// }
 	var (
 		receivedBytesStr string
 		speedStr         string
 	)
 	// 判断获取下载字节长度是否是未知
-	if receivedBytes <= 0 {
-		receivedBytesStr = ""
-		speedStr = ""
-	} else {
-		receivedBytesStr = p.Sprintf("%d", receivedBytes)
-		speedStr = p.Sprintf("%d", speed)
-	}
+	// if receivedBytes <= 0 {
+	// 	receivedBytesStr = ""
+	// 	speedStr = ""
+	// } else {
+	// 	receivedBytesStr = p.Sprintf("%d", receivedBytes)
+	// 	speedStr = p.Sprintf("%d", speed)
+	// }
 	// 打印的时长都为毫秒
 	result := fmt.Sprintf("%4.0fms│%7d│%7d│%7d│%8.0f│%8.2f│%8.2f│%8.2f│%8s│%8s│%v",
 		requestTimeFloat, chanIDLen, successNum, failureNum, qps, maxTimeFloat, minTimeFloat, averageTime, receivedBytesStr, speedStr, printMap(errCode))

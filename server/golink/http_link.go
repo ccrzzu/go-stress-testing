@@ -5,22 +5,21 @@ import (
 	"compress/gzip"
 	"context"
 	"fmt"
+	"github.com/link1st/go-stress-testing/model"
+	"github.com/link1st/go-stress-testing/server/client"
 	"io"
 	"net/http"
 	"sync"
-
-	"github.com/link1st/go-stress-testing/model"
-	"github.com/link1st/go-stress-testing/server/client"
 )
 
 // HTTP 请求
-func HTTP(ctx context.Context, chanID uint64, ch chan<- *model.RequestResults, totalNumber uint64, wg *sync.WaitGroup,
+func HTTP(ctx context.Context, chanID uint64, ch chan<- *model.RequestResults, perGoTotalNumber uint64, wg *sync.WaitGroup,
 	request *model.Request) {
 	defer func() {
 		wg.Done()
 	}()
 	// fmt.Printf("启动协程 编号:%05d \n", chanID)
-	for i := uint64(0); i < totalNumber; i++ {
+	for i := uint64(0); i < perGoTotalNumber; i++ {
 		if ctx.Err() != nil {
 			fmt.Printf("ctx.Err err: %v \n", ctx.Err())
 			break
@@ -38,7 +37,7 @@ func HTTP(ctx context.Context, chanID uint64, ch chan<- *model.RequestResults, t
 		ch <- requestResults
 	}
 
-	return
+	//return
 }
 
 // sendList 多个接口分步压测
@@ -52,7 +51,7 @@ func sendList(chanID uint64, requestList []*model.Request) (isSucceed bool, errC
 		errCode = code
 		requestTime = requestTime + u
 		contentLength = contentLength + length
-		if succeed == false {
+		if !succeed {
 			break
 		}
 	}
