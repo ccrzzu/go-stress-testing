@@ -10,14 +10,14 @@ import (
 	"time"
 	//"github.com/link1st/go-stress-testing/tools"
 	"github.com/link1st/go-stress-testing/model"
-	"golang.org/x/text/language"
-	"golang.org/x/text/message"
+	//"golang.org/x/text/language"
+	//"golang.org/x/text/message"
 )
 
 var (
 	// 输出统计数据的时间
 	// exportStatisticsTime = 1 * time.Second
-	p               = message.NewPrinter(language.English)
+	//p               = message.NewPrinter(language.English)
 	requestTimeList []uint64 // 所有请求响应时间
 )
 
@@ -125,12 +125,12 @@ func printTop(requestTimeList []uint64) {
 	// all = requestTimeList
 	// sort.Sort(requestTimeList)
 	slices.Sort(requestTimeList)
-	fmt.Println("top100:", fmt.Sprintf("%.2f", float64(requestTimeList[len(requestTimeList)-1])/1e6))
-	fmt.Println("top0:", fmt.Sprintf("%.2f", float64(requestTimeList[0])/1e6))
-	fmt.Println("top50:", fmt.Sprintf("%.2f", float64(requestTimeList[int(float64(len(requestTimeList))*0.50)])/1e6))
-	fmt.Println("top90:", fmt.Sprintf("%.2f", float64(requestTimeList[int(float64(len(requestTimeList))*0.90)])/1e6))
-	fmt.Println("top95:", fmt.Sprintf("%.2f", float64(requestTimeList[int(float64(len(requestTimeList))*0.95)])/1e6))
-	fmt.Println("top99:", fmt.Sprintf("%.2f", float64(requestTimeList[int(float64(len(requestTimeList))*0.99)])/1e6))
+	//fmt.Println("top100:", fmt.Sprintf("%.2f", float64(requestTimeList[len(requestTimeList)-1])/1e6))
+	//fmt.Println("top0:", fmt.Sprintf("%.2f", float64(requestTimeList[0])/1e6))
+	fmt.Println("top50:", fmt.Sprintf("%.0f", float64(requestTimeList[int(float64(len(requestTimeList))*0.50)])/1e6))
+	fmt.Println("top90:", fmt.Sprintf("%.0f", float64(requestTimeList[int(float64(len(requestTimeList))*0.90)])/1e6))
+	fmt.Println("top95:", fmt.Sprintf("%.0f", float64(requestTimeList[int(float64(len(requestTimeList))*0.95)])/1e6))
+	fmt.Println("top99:", fmt.Sprintf("%.0f", float64(requestTimeList[int(float64(len(requestTimeList))*0.99)])/1e6))
 }
 
 // calculateData 计算数据
@@ -198,7 +198,7 @@ func table(successNum, failureNum uint64, errCode *sync.Map,
 	// 	speedStr = p.Sprintf("%d", speed)
 	// }
 	// 打印的时长都为毫秒
-	result := fmt.Sprintf("%4.0fms│%7d│%7d│%7d│%8.0f│%8.2f│%8.2f│%8.2f│%8s│%8s│%v",
+	result := fmt.Sprintf("%4.0fms│%7d│%7d│%7d│%8.0f│%8.0f│%8.0f│%8.0f│%8s│%8s│%v",
 		requestTimeFloat, chanIDLen, successNum, failureNum, qps, maxTimeFloat, minTimeFloat, averageTime, receivedBytesStr, speedStr, printMap(errCode))
 	fmt.Println(result)
 	//return

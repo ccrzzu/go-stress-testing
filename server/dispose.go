@@ -32,11 +32,12 @@ func init() {
 // Dispose 处理函数
 func Dispose(ctx context.Context, concurrency, perGoTotalNumber uint64, request *model.Request) {
 	// 设置接收数据缓存
-	ch := make(chan *model.RequestResults, 2000)
+	ch := make(chan *model.RequestResults, concurrency*perGoTotalNumber)
 	var (
 		wg          sync.WaitGroup // 发送数据完成
 		wgReceiving sync.WaitGroup // 数据处理完成
 	)
+	
 	wgReceiving.Add(1)
 	go statistics.ReceivingResults(concurrency, perGoTotalNumber, ch, &wgReceiving)
 
@@ -101,5 +102,5 @@ func Dispose(ctx context.Context, concurrency, perGoTotalNumber uint64, request 
 	close(ch)
 	// 数据全部处理完成了
 	wgReceiving.Wait()
-	return
+	//return
 }
